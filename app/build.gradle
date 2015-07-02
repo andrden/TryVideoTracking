@@ -19,6 +19,11 @@ android {
     }
 }
 
+// fix apk name
+// http://www.jayway.com/2015/03/13/producing-better-named-android-apks-with-gradle/
+apply from: "../artifacts.gradle"
+
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:22.2.0'

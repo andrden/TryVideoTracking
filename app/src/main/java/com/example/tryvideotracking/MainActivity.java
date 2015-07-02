@@ -1,9 +1,6 @@
 package com.example.tryvideotracking;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import boofcv.abst.feature.detect.interest.ConfigGeneralDetector;
 import boofcv.abst.feature.tracker.PointTracker;
@@ -17,7 +14,7 @@ import boofcv.struct.image.ImageUInt8;
  *
  * @author Peter Abeles
  */
-public class MainActivity/*KltDisplayActivity*/ extends PointTrackerDisplayActivity {
+public class MainActivity/*KltDisplayActivity*/ extends DemoVideoDisplayActivity {
 
 
     @Override
@@ -36,6 +33,23 @@ public class MainActivity/*KltDisplayActivity*/ extends PointTrackerDisplayActiv
         PointTracker<ImageUInt8> tracker =
                 FactoryPointTracker.klt(new int[]{1, 2, 4}, config, 3, ImageUInt8.class, ImageSInt16.class);
 
-        setProcessing(new PointProcessing(tracker));
+        setProcessing(new MyPointProcessing(tracker));
+    }
+
+    private static class MyPointProcessing extends PointProcessing {
+        long tstart = System.currentTimeMillis();
+
+        public MyPointProcessing(PointTracker<ImageUInt8> tracker) {
+            super(tracker);
+        }
+
+        @Override
+        protected void process(ImageUInt8 gray) {
+            if( System.currentTimeMillis() - tstart > 5000 ){
+                tstart = System.currentTimeMillis();
+                tracker.reset(); // start anew
+            }
+            super.process(gray);
+        }
     }
 }
