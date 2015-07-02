@@ -174,6 +174,6 @@ class PointProcessing extends VideoRenderProcessing<ImageUInt8> {
             canvas.drawCircle((int) p.x, (int) p.y, 3, paintBlue);
         }
 
-        canvas.drawText("Δx="+xshiftAvg, 10, 30, paintRed);
+        canvas.drawText("Δx=="+xshiftAvg, 10, 30, paintRed);
     }
 }

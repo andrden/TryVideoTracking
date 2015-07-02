@@ -77,7 +77,7 @@ public class DemoVideoDisplayActivity extends VideoDisplayActivity {
 
 
     private void setDefaultPreferences() {
-        preference.showFps = false;
+        preference.showFps = true;
 
         // There are no cameras.  This is possible due to the hardware camera setting being set to false
         // which was a work around a bad design decision where front facing cameras wouldn't be accepted as hardware

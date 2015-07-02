@@ -9,6 +9,6 @@ public class DemoPreference {
     int cameraId;
     int preview;
     int picture;
-    boolean showFps;
+    boolean showFps=true;
     IntrinsicParameters intrinsic;
 }
