@@ -9,6 +9,8 @@ import org.ddogleg.struct.FastQueue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import boofcv.abst.feature.tracker.PointTrack;
 import boofcv.abst.feature.tracker.PointTracker;
@@ -16,6 +18,7 @@ import boofcv.android.ConvertBitmap;
 import boofcv.android.gui.VideoRenderProcessing;
 import boofcv.struct.image.ImageType;
 import boofcv.struct.image.ImageUInt8;
+import georegression.struct.point.Point2D_F32;
 import georegression.struct.point.Point2D_F64;
 
 /**
@@ -26,7 +29,9 @@ class PointProcessing extends VideoRenderProcessing<ImageUInt8> {
     Paint paintRed = new Paint();
     Paint paintBlue = new Paint();
 
-    long xshiftAvg;
+    volatile long xshiftAvg;
+    volatile long yshiftAvg;
+    BlockingQueue<Point2D_F32> stepShifts = new LinkedBlockingQueue<>();
 
     PointTracker<ImageUInt8> tracker;
 
@@ -67,18 +72,49 @@ class PointProcessing extends VideoRenderProcessing<ImageUInt8> {
 
     void calcShift(){
         int count=0;
-        long sum=0;
+        long sumX=0;
+        long sumY=0;
 
         for (int i = 0; i < active.size(); i++) {
             PointTrack t = active.get(i);
             TrackInfo info = t.getCookie();
             if( info.spawn!=null ) {
-                sum += t.getX() - info.spawn.getX();
+                sumX += t.getX() - info.spawn.getX();
+                sumY += t.getY() - info.spawn.getY();
                 count ++;
             }
         }
         if( count>5 ){
-            xshiftAvg = sum / count;
+            xshiftAvg = sumX / count;
+            yshiftAvg = sumY / count;
+        }
+    }
+
+    void calcStepShift(){
+        int count=0;
+        double sumX=0;
+        double sumY=0;
+
+        for (int i = 0; i < active.size(); i++) {
+            PointTrack t = active.get(i);
+            TrackInfo info = t.getCookie();
+            if( info.spawn!=null ) {
+                if( info.prev==null ) {
+                    sumX += t.getX() - info.spawn.getX();
+                    sumY += t.getY() - info.spawn.getY();
+                }else{
+                    sumX += t.getX() - info.prev.getX();
+                    sumY += t.getY() - info.prev.getY();
+                }
+                if( info.prev==null ){
+                    info.prev = new Point2D_F64();
+                }
+                info.prev.set(t.getX(), t.getY());
+                count ++;
+            }
+        }
+        if( count>5 ){
+            stepShifts.add(new Point2D_F32((float)sumX / count, (float)sumY / count));
         }
     }
 
@@ -108,6 +144,7 @@ class PointProcessing extends VideoRenderProcessing<ImageUInt8> {
         }
 
         calcShift();
+        calcStepShift();
 
         spawned.clear();
         if (active.size() < 50) {
@@ -173,7 +210,5 @@ class PointProcessing extends VideoRenderProcessing<ImageUInt8> {
             Point2D_F64 p = trackSpawn.get(i);
             canvas.drawCircle((int) p.x, (int) p.y, 3, paintBlue);
         }
-
-        canvas.drawText("Δx=="+xshiftAvg, 10, 30, paintRed);
     }
 }

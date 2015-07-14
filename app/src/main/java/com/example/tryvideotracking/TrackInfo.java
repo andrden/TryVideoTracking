@@ -8,4 +8,5 @@ import georegression.struct.point.Point2D_F64;
 class TrackInfo {
     long lastActive;
     Point2D_F64 spawn = new Point2D_F64();
+    Point2D_F64 prev;
 }

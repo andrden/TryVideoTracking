@@ -6,7 +6,8 @@ android {
 
     defaultConfig {
         applicationId "com.example.tryvideotracking"
-        minSdkVersion 17
+        minSdkVersion 9 // Android 2.3
+        //minSdkVersion 17 // Android 4.2
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
