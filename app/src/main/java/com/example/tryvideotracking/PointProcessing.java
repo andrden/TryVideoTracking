@@ -100,17 +100,13 @@ class PointProcessing extends VideoRenderProcessing<ImageUInt8> {
             TrackInfo info = t.getCookie();
             if( info.spawn!=null ) {
                 if( info.prev==null ) {
-                    sumX += t.getX() - info.spawn.getX();
-                    sumY += t.getY() - info.spawn.getY();
+                    info.prev = new Point2D_F64();
                 }else{
                     sumX += t.getX() - info.prev.getX();
                     sumY += t.getY() - info.prev.getY();
-                }
-                if( info.prev==null ){
-                    info.prev = new Point2D_F64();
+                    count ++;
                 }
                 info.prev.set(t.getX(), t.getY());
-                count ++;
             }
         }
         if( count>5 ){
